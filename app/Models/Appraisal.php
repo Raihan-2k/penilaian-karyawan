@@ -18,19 +18,22 @@ class Appraisal extends Model
     ];
 
     protected $casts = [
-        'appraisal_date' => 'date',
+        'appraisal_date' => 'date', // Penting untuk meng-cast ke objek Carbon
     ];
 
+    // Relasi ke model Employee (karyawan yang dinilai)
     public function employee()
     {
         return $this->belongsTo(Employee::class);
     }
 
+    // Relasi ke model User (user yang melakukan penilaian)
     public function appraiser()
     {
         return $this->belongsTo(User::class, 'appraiser_id');
     }
 
+    // Relasi ke AppraisalCriterionScore (skor kriteria untuk penilaian ini)
     public function criterionScores()
     {
         return $this->hasMany(AppraisalCriterionScore::class);

@@ -9,6 +9,7 @@ use App\Http\Controllers\AppraisalCriterionController;
 use App\Http\Controllers\AppraisalController;
 use App\Http\Controllers\AbsensiController; // Untuk sistem absensi karyawan
 use App\Http\Controllers\Auth\AuthenticatedSessionController; // Untuk kustomisasi halaman login utama
+use App\Http\Controllers\AdminAttendanceController;
 
 /*
 |--------------------------------------------------------------------------
@@ -36,6 +37,8 @@ Route::get('/dashboard', function () {
 // Semua rute di dalam grup ini akan memerlukan autentikasi user
 Route::middleware('auth')->group(function () {
     // Rute Profil User (dari Laravel Breeze)
+
+    Route::get('/admin/attendances', [AdminAttendanceController::class, 'index'])->name('admin.attendances.index');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');

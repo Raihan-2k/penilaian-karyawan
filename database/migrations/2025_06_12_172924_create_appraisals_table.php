@@ -12,12 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('appraisals', function (Blueprint $table) {
-        $table->id();
-        $table->foreignId('appraisal_id')->constrained()->onDelete('cascade');
-        $table->foreignId('appraisal_criterion_id')->constrained('appraisal_criteria')->onDelete('cascade');
-        $table->integer('score'); // Contoh: skala 1-5 atau 1-10
-        $table->text('comments')->nullable();
-        $table->timestamps();
+            $table->id();
+            $table->foreignId('employee_id')->constrained()->onDelete('cascade'); // Kolom ini harus ada!
+            $table->foreignId('appraiser_id')->constrained('users')->onDelete('cascade');
+            $table->date('appraisal_date');
+            $table->text('overall_feedback')->nullable();
+            $table->float('overall_score')->nullable();
+            $table->timestamps();
         });
     }
 
