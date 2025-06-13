@@ -40,6 +40,10 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
+        'web_employee_login' => [
+        'driver' => 'session',
+        'provider' => 'employee_logins',
+    ],
     ],
 
     /*
@@ -65,10 +69,10 @@ return [
             'model' => env('AUTH_MODEL', App\Models\User::class),
         ],
 
-        // 'users' => [
-        //     'driver' => 'database',
-        //     'table' => 'users',
-        // ],
+        'employee_logins' => [
+        'driver' => 'eloquent',
+        'model' => App\Models\EmployeeLogin::class,
+    ],
     ],
 
     /*

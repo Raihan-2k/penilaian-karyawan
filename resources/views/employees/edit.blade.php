@@ -14,16 +14,25 @@
                         @method('PUT')
 
                         <div>
-                            <x-input-label for="name" :value="__('Nama')" />
-                            <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name', $employee->name)" required autofocus />
+                            <x-input-label for="nip" :value="__('NIP')" />
+                            <x-text-input id="nip" class="block mt-1 w-full" type="text" name="nip" :value="old('nip', $employee->nip)" required autofocus />
+                            <x-input-error :messages="$errors->get('nip')" class="mt-2" />
+                        </div>
+
+                        <div class="mt-4">
+                            <x-input-label for="name" :value="__('Nama Karyawan')" />
+                            <x-text-input id="name" class="block mt-1 w-full" type="text" name="name" :value="old('name', $employee->name)" required />
                             <x-input-error :messages="$errors->get('name')" class="mt-2" />
                         </div>
 
+                        {{-- Hapus bagian ini (Email Address) --}}
+                        {{--
                         <div class="mt-4">
                             <x-input-label for="email" :value="__('Email')" />
                             <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email', $employee->email)" required />
                             <x-input-error :messages="$errors->get('email')" class="mt-2" />
                         </div>
+                        --}}
 
                         <div class="mt-4">
                             <x-input-label for="position" :value="__('Posisi')" />
