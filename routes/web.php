@@ -10,6 +10,7 @@ use App\Http\Controllers\AppraisalController;
 use App\Http\Controllers\AbsensiController; // Untuk sistem absensi karyawan
 use App\Http\Controllers\Auth\AuthenticatedSessionController; // Untuk kustomisasi halaman login utama
 use App\Http\Controllers\AdminAttendanceController;
+use App\Http\Controllers\DashboardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -24,14 +25,9 @@ use App\Http\Controllers\AdminAttendanceController;
 
 // --- Rute Halaman Login Utama (Untuk Manager/Admin) ---
 // Mengarahkan URL root "/" langsung ke halaman login admin/manager
-Route::get('/', [AuthenticatedSessionController::class, 'create'])
-            ->middleware('guest') // Hanya bisa diakses oleh user yang belum login
-            ->name('login'); // Memberikan nama rute 'login'
-
-// Rute Dashboard default dari Laravel Breeze (untuk Manager/Admin setelah login)
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
 
 // --- Rute Aplikasi Inti (Hanya Bisa Diakses Oleh Manager/Admin yang Sudah Login) ---
 // Semua rute di dalam grup ini akan memerlukan autentikasi user
