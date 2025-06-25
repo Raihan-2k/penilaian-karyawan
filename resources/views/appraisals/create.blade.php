@@ -57,8 +57,19 @@
                                     <x-input-label for="score-{{ $criterion->id }}" :value="__('Skor (1-5)')" />
                                     <select id="score-{{ $criterion->id }}" name="scores[{{ $index }}][score]" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" required>
                                         <option value="">-- Pilih Skor --</option>
+                                        @php
+                                            $scoreDescriptions = [
+                                                1 => 'Sangat Kurang',
+                                                2 => 'Kurang',
+                                                3 => 'Cukup',
+                                                4 => 'Baik',
+                                                5 => 'Sangat Baik',
+                                            ];
+                                        @endphp
                                         @for ($i = 1; $i <= 5; $i++)
-                                            <option value="{{ $i }}" @selected(old('scores.'.$index.'.score') == $i)>{{ $i }}</option>
+                                            <option value="{{ $i }}" @selected(old('scores.'.$index.'.score') == $i)>
+                                                {{ $i }} - {{ $scoreDescriptions[$i] }}
+                                            </option>
                                         @endfor
                                     </select>
                                     <x-input-error :messages="$errors->get('scores.'.$index.'.score')" class="mt-2" />
@@ -71,11 +82,11 @@
                                 </div>
                             </div>
                         @empty
-                            {{-- Pesan jika tidak ada kriteria penilaian --}}
+                            {{-- Pesan jika tidak ada kriteria penilaian yang ditemukan di database --}}
                             <p class="text-red-500">Belum ada kriteria penilaian yang tersedia. Harap tambahkan kriteria terlebih dahulu melalui menu "Kriteria Penilaian".</p>
                         @endforelse
 
-                        {{-- Tombol Submit --}}
+                        {{-- Tombol Submit Form --}}
                         <div class="flex items-center justify-end mt-4">
                             <x-primary-button class="ms-4" :disabled="$criteria->isEmpty()">
                                 {{ __('Simpan Penilaian') }}

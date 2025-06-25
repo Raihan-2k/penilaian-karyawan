@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
 class Attendance extends Model
 {
@@ -14,12 +15,11 @@ class Attendance extends Model
         'date',
         'check_in_time',
         'check_out_time',
-        'overtime_hours',
+        // 'overtime_hours', // <--- HAPUS ATAU KOMENTARI BARIS INI
     ];
 
     protected $casts = [
         'date' => 'date',
-        // Carbon akan membuat objek datetime dari string waktu di DB
         'check_in_time' => 'datetime',
         'check_out_time' => 'datetime',
     ];

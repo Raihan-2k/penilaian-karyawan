@@ -18,7 +18,8 @@
                     </p>
                 </div>
 
-                <div class="bg-gray-200 bg-opacity-25 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 p-6 lg:p-8">
+                {{-- Ubah grid agar sesuai (dari lg:grid-cols-4 jadi lg:grid-cols-3 karena satu kartu dihapus) --}}
+                <div class="bg-gray-200 bg-opacity-25 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6 lg:p-8">
                     {{-- Kartu Statistik --}}
 
                     {{-- Kartu 1: Total Karyawan --}}
@@ -28,6 +29,7 @@
                             <div class="text-gray-600 text-sm mt-1">Total Karyawan</div>
                         </div>
                         <div class="text-indigo-500">
+                            {{-- Placeholder Icon --}}
                             <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h-5m-5 0h5m-5 0a2 2 0 112-2v2m-2-2a2 2 0 00-2 2v2m2-2h2.5M10 20v-2a2 2 0 10-4 0v2m4 0H7m0 0a2 2 0 012-2h1m-1 2a2 2 0 002 2h1m-1-2v2a2 2 0 002 2h1m-1-2h2.5M17 20v-2a2 2 0 10-4 0v2"></path></svg>
                         </div>
                     </div>
@@ -43,7 +45,8 @@
                         </div>
                     </div>
 
-                    {{-- Kartu 3: Total Jam Lembur Bulan Ini --}}
+                    {{-- HAPUS KARTU INI KARENA FITUR LEMBUR DIHAPUS --}}
+                    {{--
                     <div class="bg-white rounded-lg shadow-md p-6 flex items-center justify-between">
                         <div>
                             <div class="text-red-600 text-3xl font-bold">{{ $overtimeThisMonth }}</div>
@@ -53,8 +56,9 @@
                             <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         </div>
                     </div>
+                    --}}
 
-                    {{-- Kartu 4: Karyawan Belum Check-in Hari Ini --}}
+                    {{-- Kartu 3: Karyawan Belum Check-in Hari Ini --}}
                     <div class="bg-white rounded-lg shadow-md p-6 flex items-center justify-between">
                         <div>
                             <div class="text-yellow-600 text-3xl font-bold">{{ $employeesNotCheckedInToday }}</div>
@@ -74,7 +78,7 @@
                         <ul class="space-y-3 text-gray-700">
                             @forelse ($recentAppraisals as $appraisal)
                                 <li class="p-3 bg-gray-50 rounded-lg shadow-sm">
-                                    <span class="font-semibold">{{ $appraisal->employee->name }}</span> - Penilaian kinerja selesai oleh <span class="font-semibold">{{ $appraisal->appraiser->name }}</span> ({{ $appraisal->appraisal_date->format('d M Y') }})
+                                    <span class="font-semibold">{{ $appraisal->employee?->name }}</span> - Penilaian kinerja selesai oleh <span class="font-semibold">{{ $appraisal->appraiser?->name }}</span> ({{ $appraisal->appraisal_date->format('d M Y') }})
                                     <a href="{{ route('appraisals.show', $appraisal) }}" class="text-indigo-600 hover:underline ml-2 text-sm">Lihat</a>
                                 </li>
                             @empty
@@ -83,20 +87,17 @@
                                 </li>
                             @endforelse
 
+                            {{-- Logika Absensi Terbaru (Tidak menampilkan lembur) --}}
                             @forelse ($recentAttendances as $attendance)
                                 <li class="p-3 bg-gray-50 rounded-lg shadow-sm">
-                                    <span class="font-semibold">{{ $attendance->employee->name }}</span> -
+                                    <span class="font-semibold">{{ $attendance->employee?->name }}</span> -
                                     @if($attendance->check_out_time)
                                         Check-out ({{ \Carbon\Carbon::parse($attendance->check_out_time)->format('d M Y, H:i') }})
-                                        @if($attendance->overtime_hours > 0)
-                                            <span class="text-green-600 font-semibold">(Lembur: {{ $attendance->overtime_hours }} jam)</span>
-                                        @endif
                                     @else
                                         Check-in ({{ \Carbon\Carbon::parse($attendance->check_in_time)->format('d M Y, H:i') }})
                                     @endif
                                 </li>
                             @empty
-                                {{-- Hanya tampilkan ini jika kedua recentAppraisals DAN recentAttendances kosong --}}
                                 @if($recentAppraisals->isEmpty())
                                     <li class="p-3 bg-gray-50 rounded-lg shadow-sm text-center text-gray-500">
                                         Belum ada aktivitas absensi terbaru.

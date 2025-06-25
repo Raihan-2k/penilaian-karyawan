@@ -3,10 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Employee;
-use App\Models\EmployeeLogin;
 use Illuminate\Http\Request;
-use Illuminate\Validation\Rule; 
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Hash; // Penting: Impor ini untuk hash password
 
 class EmployeeController extends Controller
 {
@@ -15,8 +14,8 @@ class EmployeeController extends Controller
      */
     public function index()
     {
-        $employees = Employee::all(); // Mengambil semua data karyawan dari database
-        return view('employees.index', compact('employees')); // Mengirim data ke view 'employees.index'
+        $employees = Employee::all();
+        return view('employees.index', compact('employees'));
     }
 
     /**
@@ -24,7 +23,7 @@ class EmployeeController extends Controller
      */
     public function create()
     {
-        return view('employees.create'); // Menampilkan view form tambah karyawan
+        return view('employees.create');
     }
 
     /**
@@ -32,89 +31,88 @@ class EmployeeController extends Controller
      */
     public function store(Request $request)
     {
-        // Validasi input dari form
         $request->validate([
-            'nip' => 'required|digits:10|unique:employees,nip', // NIP wajib, harus angka, dan unik
-            'name' => 'required|string|max:255', // Nama wajib, string, maksimal 255 karakter
-            // 'email' => 'nullable|email|unique:employees,email', // Jika Anda ingin email ada di DB tapi opsional/tidak di form, bisa pakai ini
-            'position' => 'required|string|max:255', // Posisi wajib, string, maksimal 255 karakter
-            'hire_date' => 'required|date', // Tanggal masuk wajib, harus format tanggal
+            'nip' => 'required|digits:10|unique:employees,nip',
+            'name' => 'required|string|max:255',
+            'email' => 'email|max:255|unique:employees,email', // Validasi email
+            'password' => 'required|string|min:8|confirmed',
+            'role' => ['required', 'string', Rule::in(['manager', 'karyawan'])],
+            'position' => 'required|string|max:255',
+            'hire_date' => 'required|date',
+            'pendidikan_terakhir' => 'string|max:255', // Validasi pendidikan terakhir
+            'nomor_telepon' => 'string|max:20', // Validasi nomor telepon
+            'tanggal_lahir' => 'date', // Validasi tanggal lahir
         ]);
 
-        // Membuat record karyawan baru di database
-        Employee::create($request->all());
+        $data = $request->all();
+        $data['password'] = Hash::make($request->password);
+        $data['must_change_password'] = true; // Karyawan baru passwordnya sudah diatur
 
-        // Redirect kembali ke halaman daftar karyawan dengan pesan sukses
+        Employee::create($data);
+
         return redirect()->route('employees.index')->with('success', 'Karyawan berhasil ditambahkan!');
     }
 
     /**
      * Menampilkan detail karyawan tertentu.
-     * Menggunakan Route Model Binding: Laravel otomatis menemukan karyawan berdasarkan ID di URL.
      */
     public function show(Employee $employee)
     {
-        return view('employees.show', compact('employee')); // Menampilkan view detail karyawan
+        return view('employees.show', compact('employee'));
     }
 
     /**
      * Menampilkan form untuk mengedit karyawan.
-     * Menggunakan Route Model Binding.
      */
     public function edit(Employee $employee)
     {
-        return view('employees.edit', compact('employee')); // Menampilkan view form edit karyawan
+        return view('employees.edit', compact('employee'));
     }
 
     /**
      * Memperbarui data karyawan di database.
-     * Menggunakan Route Model Binding.
      */
     public function update(Request $request, Employee $employee)
     {
-        // Validasi input dari form, dengan pengecualian untuk NIP karyawan yang sedang diedit
-        $request->validate([
+        $rules = [
             'nip' => ['required', 'digits:10', Rule::unique('employees', 'nip')->ignore($employee->id)],
             'name' => 'required|string|max:255',
-            // 'email' => ['nullable', 'email', Rule::unique('employees', 'email')->ignore($employee->id)], // Jika email ada di DB
+            'email' => ['nullable', 'email', 'max:255', Rule::unique('employees', 'email')->ignore($employee->id)], // Validasi email
             'position' => 'required|string|max:255',
+            'role' => ['required', 'string', Rule::in(['manager', 'karyawan'])],
             'hire_date' => 'required|date',
-        ]);
+            'pendidikan_terakhir' => 'nullable|string|max:255', // Validasi pendidikan terakhir
+            'nomor_telepon' => 'string|max:20', // Validasi nomor telepon
+            'tanggal_lahir' => 'date', // Validasi tanggal lahir
+        ];
 
-        // Memperbarui record karyawan di database
-        $employee->update($request->all());
+        if ($request->filled('password')) {
+            $rules['password'] = 'required|string|min:8|confirmed';
+        }
 
-        // Redirect kembali ke halaman daftar karyawan dengan pesan sukses
+        $request->validate($rules);
+
+        $data = $request->all();
+
+        if ($request->filled('password')) {
+            $data['password'] = Hash::make($request->password);
+            $data['must_change_password'] = true; // Jika password diupdate, flag ini jadi false
+        } else {
+            // Hapus password dari data agar tidak mengupdate password jika tidak diisi
+            unset($data['password']);
+        }
+
+        $employee->update($data);
+
         return redirect()->route('employees.index')->with('success', 'Data karyawan berhasil diperbarui!');
     }
 
     /**
      * Menghapus karyawan dari database.
-     * Menggunakan Route Model Binding.
      */
     public function destroy(Employee $employee)
     {
-        $employee->delete(); // Menghapus record karyawan dari database
-        return redirect()->route('employees.index')->with('success', 'Karyawan berhasil dihapus!'); // Redirect dengan pesan sukses
-    }
-     public function createAttendanceAccount(Employee $employee)
-    {
-        // Cek apakah karyawan sudah punya akun absensi
-        if ($employee->loginAccount) {
-            return back()->with('error', 'Karyawan ini sudah memiliki akun absensi.');
-        }
-
-        // Generate password default (misal 123456)
-        $defaultPassword = 'password123'; // Anda bisa membuat ini lebih dinamis atau random
-        $hashedPassword = Hash::make($defaultPassword);
-
-        EmployeeLogin::create([
-            'employee_id' => $employee->id,
-            'nip' => $employee->nip, // NIP dari data karyawan sebagai username
-            'password' => $hashedPassword,
-            'must_change_password' => true, // Memaksa ganti password saat login pertama
-        ]);
-
-        return back()->with('success', 'Akun absensi untuk NIP ' . $employee->nip . ' berhasil dibuat dengan password default: ' . $defaultPassword . '. Karyawan harus mengubah password saat login pertama.');
+        $employee->delete();
+        return redirect()->route('employees.index')->with('success', 'Karyawan berhasil dihapus!');
     }
 }

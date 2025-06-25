@@ -33,8 +33,8 @@
                                 @forelse ($appraisals as $appraisal)
                                     <tr>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $appraisal->appraisal_date->format('d M Y') }}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $appraisal->employee->name }} ({{ $appraisal->employee->nip }})</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $appraisal->appraiser->name }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $appraisal->employee?->name }} ({{ $appraisal->employee?->nip }})</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $appraisal->appraiser?->name }}</td> 
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                             <a href="{{ route('appraisals.show', $appraisal) }}" class="text-indigo-600 hover:text-indigo-900 mr-3">Lihat Detail</a>
                                             {{-- Tombol Edit/Hapus bisa ditambahkan di sini jika diimplementasikan --}}

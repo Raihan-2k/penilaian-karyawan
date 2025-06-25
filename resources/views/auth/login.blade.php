@@ -1,8 +1,8 @@
 <x-guest-layout>
     {{-- Bagian untuk Menampilkan Judul Aplikasi dan Pesan Selamat Datang --}}
     <div class="mb-4 text-sm text-gray-600 text-center">
-        <h1 class="text-2xl font-bold text-gray-800 mb-2">Sistem Penilaian Karyawan</h1>
-        <p>Silakan masuk dengan akun manager Anda.</p>
+        <h1 class="text-2xl font-bold text-gray-800 mb-2">Sistem Penilaian dan Absensi Karyawan</h1>
+        <p>Silakan masuk menggunakan NIP dan password Anda.</p>
     </div>
 
     {{-- Bagian untuk Menampilkan Status Sesi (misal: "Anda telah berhasil keluar.") --}}
@@ -13,9 +13,9 @@
         @csrf
 
         <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus autocomplete="username" />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
+            <x-input-label for="nip" :value="__('NIP')" /> {{-- Ubah label --}}
+            <x-text-input id="nip" class="block mt-1 w-full" type="text" name="nip" :value="old('nip')" required autofocus autocomplete="username" /> {{-- Ubah id, type, dan name --}}
+            <x-input-error :messages="$errors->get('nip')" class="mt-2" /> {{-- Ubah pesan error untuk 'nip' --}}
         </div>
 
         <div class="mt-4">
