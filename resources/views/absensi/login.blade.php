@@ -1,7 +1,7 @@
 <x-guest-layout>
     <div class="mb-4 text-sm text-gray-600 text-center">
         <h1 class="text-2xl font-bold text-gray-800 mb-2">Sistem Absensi Karyawan</h1>
-        <p>Silakan masuk menggunakan NIP dan password absensi Anda.</p>
+        <p>Silakan masuk menggunakan NIP dan password anda.</p>
     </div>
 
     <x-auth-session-status class="mb-4" :status="session('status')" />

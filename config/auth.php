@@ -7,15 +7,15 @@ return [
     | Authentication Defaults
     |--------------------------------------------------------------------------
     |
-    | This option defines the default authentication "guard" and password
-    | reset "broker" for your application. You may change these values
-    | as required, but they're a perfect start for most applications.
+    | This option controls the default authentication "guard" and password
+    | reset options for your application. You may change these defaults
+    | as required, but they're a good starting point.
     |
     */
 
     'defaults' => [
-        'guard' => env('AUTH_GUARD', 'web'),
-        'passwords' => env('AUTH_PASSWORD_BROKER', 'users'),
+        'guard' => 'web',
+        'passwords' => 'users',
     ],
 
     /*
@@ -25,25 +25,31 @@ return [
     |
     | Next, you may define every authentication guard for your application.
     | Of course, a great default configuration has been defined for you
-    | which utilizes session storage plus the Eloquent user provider.
+    | here which uses the session storage driver and Eloquent user provider.
     |
-    | All authentication guards have a user provider, which defines how the
+    | All authentication drivers have a user provider. This defines how the
     | users are actually retrieved out of your database or other storage
-    | system used by the application. Typically, Eloquent is utilized.
+    | mechanisms used by this application to persist your user's social
+    | state.
     |
-    | Supported: "session"
+    | Laravel also includes a "remember me" authentication feature that
+    | will keep users logged in for an extended period of time. If
+    | you choose to utilize this feature, you'll simply specify a
+    | duration in seconds.
     |
     */
 
     'guards' => [
-        'web' => [
+        'web' => [ // <--- Ini adalah guard utama kita sekarang
             'driver' => 'session',
-            'provider' => 'users',
+            'provider' => 'users', // Provider ini akan menunjuk ke model Employee
         ],
-        'web_employee_login' => [
-        'driver' => 'session',
-        'provider' => 'employee_logins',
-    ],
+        // PASTIKAN BLOK 'web_employee_login' TIDAK ADA DI SINI
+        // Ini adalah contoh jika ada:
+        // 'web_employee_login' => [
+        //     'driver' => 'session',
+        //     'provider' => 'employee_logins',
+        // ],
     ],
 
     /*
@@ -51,28 +57,33 @@ return [
     | User Providers
     |--------------------------------------------------------------------------
     |
-    | All authentication guards have a user provider, which defines how the
+    | All authentication drivers have a user provider. This defines how the
     | users are actually retrieved out of your database or other storage
-    | system used by the application. Typically, Eloquent is utilized.
+    | mechanisms used by this application to persist your user's social
+    | state.
     |
-    | If you have multiple user tables or models you may configure multiple
-    | providers to represent the model / table. These providers may then
-    | be assigned to any extra authentication guards you have defined.
+    | If you have several different user tables or models, you may configure
+    | several sources that represent these models. These providers may then
+    | be assigned to any authentication guard using the provider option.
     |
-    | Supported: "database", "eloquent"
+    | Laravel also includes a "remember me" authentication feature that
+    | will keep users logged in for an extended period of time. If
+    | you choose to utilize this feature, you'll simply specify a
+    | duration in seconds.
     |
     */
 
     'providers' => [
-        'users' => [
+        'users' => [ // <--- Ini adalah provider utama kita sekarang
             'driver' => 'eloquent',
-            'model' => env('AUTH_MODEL', App\Models\User::class),
+            'model' => App\Models\Employee::class, // <--- PENTING: Pastikan ini menunjuk ke Model Employee
         ],
-
-        'employee_logins' => [
-        'driver' => 'eloquent',
-        'model' => App\Models\EmployeeLogin::class,
-    ],
+        // PASTIKAN BLOK 'employee_logins' TIDAK ADA DI SINI
+        // Ini adalah contoh jika ada:
+        // 'employee_logins' => [
+        //     'driver' => 'eloquent',
+        //     // 'model' => App\Models\EmployeeLogin::class, // Model ini sudah dihapus
+        // ],
     ],
 
     /*
@@ -80,26 +91,18 @@ return [
     | Resetting Passwords
     |--------------------------------------------------------------------------
     |
-    | These configuration options specify the behavior of Laravel's password
-    | reset functionality, including the table utilized for token storage
-    | and the user provider that is invoked to actually retrieve users.
-    |
-    | The expiry time is the number of minutes that each reset token will be
-    | considered valid. This security feature keeps tokens short-lived so
-    | they have less time to be guessed. You may change this as needed.
-    |
-    | The throttle setting is the number of seconds a user must wait before
-    | generating more password reset tokens. This prevents the user from
-    | quickly generating a very large amount of password reset tokens.
+    | You may specify how many seconds before a reset token expires. This
+    | security feature keeps each token from being abused after it's
+    | issued.
     |
     */
 
     'passwords' => [
         'users' => [
             'provider' => 'users',
-            'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
-            'expire' => 60,
-            'throttle' => 60,
+            'table' => 'password_reset_tokens',
+            'expire' => 60 * 60, // 1 hour
+            'throttle' => 60 * 10, // 10 minutes
         ],
     ],
 
@@ -109,11 +112,11 @@ return [
     |--------------------------------------------------------------------------
     |
     | Here you may define the number of seconds before a password confirmation
-    | window expires and users are asked to re-enter their password via the
+    | times out and the user is prompted to re-enter their password via the
     | confirmation screen. By default, the timeout lasts for three hours.
     |
     */
 
-    'password_timeout' => env('AUTH_PASSWORD_TIMEOUT', 10800),
+    'password_timeout' => 10800,
 
 ];

@@ -13,6 +13,10 @@ return new class extends Migration
     {
         Schema::create('appraisal_criterion_scores', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('appraisal_id')->constrained()->onDelete('cascade'); // foreign key ke tabel appraisals
+            $table->foreignId('appraisal_criterion_id')->constrained('appraisal_criteria')->onDelete('cascade');
+            $table->integer('score');
+            $table->text('comments')->nullable();
             $table->timestamps();
         });
     }

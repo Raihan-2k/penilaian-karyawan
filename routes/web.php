@@ -3,91 +3,78 @@
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
-// Impor Controller yang kita gunakan
+// Impor Controller yang kita gunakan (PASTIKAN SEMUA MENGGUNAKAN BACKSLASH '\')
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\AppraisalCriterionController;
 use App\Http\Controllers\AppraisalController;
-use App\Http\Controllers\AbsensiController; // Untuk sistem absensi karyawan
-use App\Http\Controllers\Auth\AuthenticatedSessionController; // Untuk kustomisasi halaman login utama
+use App\Http\Controllers\AbsensiController;
+use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\DashboardController;
+// use App\Http\Controllers\HolidayController; // <--- Pastikan ini dikomentari/dihapus jika fitur hari libur sudah dihapus
+use App\Http\Controllers\AdminAttendanceController; // Untuk laporan absensi admin
 
 /*
 |--------------------------------------------------------------------------
 | Web Routes
 |--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
 */
 
-// --- Rute Halaman Login Utama (Untuk Manager/Admin) ---
-// Mengarahkan URL root "/" langsung ke halaman login admin/manager
+// --- Rute Halaman Login Utama (Untuk Manager/Karyawan) ---
 Route::get('/', [AuthenticatedSessionController::class, 'create'])
-            ->middleware('guest') // Hanya bisa diakses oleh user yang belum login
-            ->name('login'); // Memberikan nama rute 'login'
+            ->middleware('guest')
+            ->name('login');
 
-// Rute Dashboard default dari Laravel Breeze (untuk Manager/Admin setelah login)
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+// --- Rute Dashboard Utama (Untuk Manager) ---
+Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
 
-// --- Rute Aplikasi Inti (Hanya Bisa Diakses Oleh Manager/Admin yang Sudah Login) ---
-// Semua rute di dalam grup ini akan memerlukan autentikasi user
-Route::middleware('auth')->group(function () {
-    // Rute Profil User (dari Laravel Breeze)
+// --- Rute Aplikasi Manager (Hanya Bisa Diakses Oleh Manager yang Sudah Login) ---
+Route::middleware(['auth', 'verified'])->group(function () {
+    // Rute Profil User (sekarang Employee Manager)
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
     // Rute Resource untuk Karyawan (CRUD penuh)
-    // URL: /employees, /employees/create, /employees/{id}, dll.
     Route::resource('employees', EmployeeController::class);
 
-    // Rute khusus untuk membuat akun absensi dari halaman detail karyawan (oleh Admin/Manager)
-    // URL: POST /employees/{employee}/create-attendance-account
-    Route::post('employees/{employee}/create-attendance-account', [EmployeeController::class, 'createAttendanceAccount'])
-        ->name('employees.create-attendance-account');
-
-    // Rute Resource untuk Kriteria Penilaian (CRUD penuh)
-    // URL: /appraisal-criteria, /appraisal-criteria/create, dll.
+    // Rute Resource untuk Kriteria Penilaian
     Route::resource('appraisal-criteria', AppraisalCriterionController::class);
 
-    // Rute Resource untuk Penilaian (CRUD penuh) - (Controller perlu diimplementasikan nanti)
-    // URL: /appraisals, /appraisals/create, dll.
+    // Rute Resource untuk Penilaian
     Route::resource('appraisals', AppraisalController::class);
+
+    // Rute Resource untuk Hari Libur (jika sudah dihapus, pastikan tidak ada di sini)
+    // Route::resource('holidays', HolidayController::class); // Contoh jika ada
+
+    // --- Rute untuk Laporan Absensi Admin dan Edit/Buat Manual ---
+    Route::get('/admin/attendances', [AdminAttendanceController::class, 'index'])->name('admin.attendances.index');
+    // Rute Edit Terpadu (untuk membuat atau mengedit absensi)
+    Route::get('/admin/attendances/{employee}/{date}/edit', [AdminAttendanceController::class, 'editOrCreate'])->name('admin.attendances.edit_or_create');
+    // Rute Update untuk Record yang sudah ada
+    Route::put('/admin/attendances/{attendance}', [AdminAttendanceController::class, 'update'])->name('admin.attendances.update');
+    // Rute Store untuk Record Baru yang dibuat manual
+    Route::post('/admin/attendances/store-manual', [AdminAttendanceController::class, 'storeManual'])->name('admin.attendances.store_manual');
+    // --- AKHIR RUTE ABSENSI ADMIN ---
+
+    // Rute Logout umum (untuk semua role)
+    Route::post('/logout', [AbsensiController::class, 'logout'])->name('logout');
 });
 
-// --- Rute Sistem Absensi Karyawan (Khusus untuk Karyawan) ---
-
-// Rute untuk Halaman Login Absensi Karyawan (tanpa perlu login admin/manager)
-Route::middleware('guest')->group(function () {
-    // URL: /absensi/login
-    Route::get('/absensi/login', [AbsensiController::class, 'showLoginForm'])->name('absensi.login.show');
-    // URL: POST /absensi/login (untuk memproses login)
-    Route::post('/absensi/login', [AbsensiController::class, 'login'])->name('absensi.login');
-});
-
-// Rute untuk Fitur Absensi Karyawan yang Sudah Login
-// Menggunakan guard 'web_employee_login' yang telah kita definisikan di config/auth.php
-Route::middleware('auth:web_employee_login')->group(function () {
-    // URL: /absensi/dashboard (Halaman dashboard absensi)
+// --- Rute Sistem Absensi Karyawan (Hanya Bisa Diakses Oleh Karyawan Biasa yang Sudah Login) ---
+Route::middleware(['auth'])->group(function () {
+    // Dashboard Absensi Karyawan
     Route::get('/absensi/dashboard', [AbsensiController::class, 'dashboard'])->name('absensi.dashboard');
-    // URL: POST /absensi/checkin (untuk proses check-in)
+    // Proses Check-in
     Route::post('/absensi/checkin', [AbsensiController::class, 'checkIn'])->name('absensi.checkin');
-    // URL: POST /absensi/checkout (untuk proses check-out)
+    // Proses Check-out
     Route::post('/absensi/checkout', [AbsensiController::class, 'checkOut'])->name('absensi.checkout');
-    // URL: POST /absensi/logout (untuk proses logout absensi)
-    Route::post('/absensi/logout', [AbsensiController::class, 'logout'])->name('absensi.logout');
-
-    // Rute untuk ganti password pertama kali (jika diperlukan)
-    // URL: /absensi/change-password
+    // Rute untuk ganti password (untuk semua user, manager atau karyawan)
     Route::get('/absensi/change-password', [AbsensiController::class, 'showChangePasswordForm'])->name('absensi.change-password');
-    // URL: POST /absensi/change-password (untuk memproses ganti password)
     Route::post('/absensi/change-password', [AbsensiController::class, 'changePassword'])->name('absensi.change-password.store');
 });
 
 
 // Mengimpor rute otentikasi Breeze yang tersisa (misal: forgot password, dll)
-// Pastikan rute 'register' sudah Anda hapus atau komentari di 'routes/auth.php'
 require __DIR__.'/auth.php';

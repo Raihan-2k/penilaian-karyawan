@@ -1,7 +1,8 @@
 <x-app-layout>
     <x-slot name="header">
+        {{-- Menggunakan Auth::user()->name karena Auth::user() sudah mengembalikan objek Employee --}}
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Dashboard Absensi') }} - {{ Auth::guard('web_employee_login')->user()->employee->name }}
+            {{ __('Dashboard Absensi') }} - {{ Auth::user()->name }}
         </h2>
     </x-slot>
 
@@ -55,7 +56,8 @@
 
                     <div class="mt-8">
                         <h3 class="text-xl font-semibold mb-4">Logout</h3>
-                        <form action="{{ route('absensi.logout') }}" method="POST">
+                        {{-- Menggunakan route logout umum --}}
+                        <form action="{{ route('logout') }}" method="POST"> 
                             @csrf
                             <x-primary-button class="bg-red-500 hover:bg-red-600">
                                 {{ __('Logout Absensi') }}
