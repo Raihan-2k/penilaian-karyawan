@@ -21,41 +21,40 @@ class LoginRequest extends FormRequest
 
     /**
      * Get the validation rules that apply to the request.
-     *
-     * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
+     * Kita akan memvalidasi 'nip' sebagai kredensial utama.
      */
     public function rules(): array
     {
         return [
-            'email' => ['required', 'string', 'email'],
+            // Ubah 'email' menjadi 'nip'
+            'nip' => ['required', 'string'],
             'password' => ['required', 'string'],
         ];
     }
 
     /**
      * Attempt to authenticate the request's credentials.
-     *
-     * @throws \Illuminate\Validation\ValidationException
+     * Ini adalah tempat logika otentikasi sebenarnya terjadi.
      */
     public function authenticate(): void
     {
         $this->ensureIsNotRateLimited();
 
-        if (! Auth::attempt($this->only('email', 'password'), $this->boolean('remember'))) {
+        // Coba otentikasi menggunakan NIP sebagai 'username'
+        // Laravel akan mencari 'nip' di kolom yang didefinisikan sebagai username otentikasi
+        // jika tidak, ia akan mencari 'email' (default)
+        if (! Auth::attempt($this->only('nip', 'password'), $this->boolean('remember'))) { // Ubah 'email' menjadi 'nip'
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
-                'email' => trans('auth.failed'),
+                'nip' => trans('auth.failed'), // Ubah pesan error untuk NIP
             ]);
         }
-
-        RateLimiter::clear($this->throttleKey());
     }
 
     /**
      * Ensure the login request is not rate limited.
-     *
-     * @throws \Illuminate\Validation\ValidationException
+     * Pastikan ini tidak membatasi terlalu banyak percobaan login.
      */
     public function ensureIsNotRateLimited(): void
     {
@@ -68,7 +67,7 @@ class LoginRequest extends FormRequest
         $seconds = RateLimiter::availableIn($this->throttleKey());
 
         throw ValidationException::withMessages([
-            'email' => trans('auth.throttle', [
+            'nip' => trans('auth.throttle', [ // Ubah pesan error untuk NIP
                 'seconds' => $seconds,
                 'minutes' => ceil($seconds / 60),
             ]),
@@ -80,6 +79,7 @@ class LoginRequest extends FormRequest
      */
     public function throttleKey(): string
     {
-        return Str::transliterate(Str::lower($this->string('email')).'|'.$this->ip());
+        // Ubah kunci throttle dari 'email' menjadi 'nip'
+        return Str::transliterate(Str::lower($this->input('nip')).'|'.$this->ip());
     }
 }

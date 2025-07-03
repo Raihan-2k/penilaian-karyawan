@@ -20,7 +20,6 @@
                         </div>
                     @endif
 
-                    {{-- Bagian detail karyawan yang sudah ada --}}
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <p class="text-sm text-gray-500">NIP:</p>
@@ -31,8 +30,28 @@
                             <p class="text-lg font-medium text-gray-900">{{ $employee->name }}</p>
                         </div>
                         <div>
+                            <p class="text-sm text-gray-500">Email:</p>
+                            <p class="text-lg font-medium text-gray-900">{{ $employee->email ?? '-' }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Pendidikan Terakhir:</p>
+                            <p class="text-lg font-medium text-gray-900">{{ $employee->pendidikan_terakhir ?? '-' }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Nomor Telepon:</p>
+                            <p class="text-lg font-medium text-gray-900">{{ $employee->nomor_telepon ?? '-' }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Tanggal Lahir:</p>
+                            <p class="text-lg font-medium text-gray-900">{{ $employee->tanggal_lahir?->format('d M Y') ?? '-' }}</p>
+                        </div>
+                        <div>
                             <p class="text-sm text-gray-500">Posisi:</p>
                             <p class="text-lg font-medium text-gray-900">{{ $employee->position }}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Role:</p>
+                            <p class="text-lg font-medium text-gray-900">{{ ucfirst($employee->role) }}</p>
                         </div>
                         <div>
                             <p class="text-sm text-gray-500">Tanggal Masuk:</p>
@@ -56,7 +75,8 @@
                             Kembali ke Daftar
                         </a>
 
-                        {{-- Tambahkan tombol untuk membuat akun absensi --}}
+                        {{-- HAPUS SELURUH BLOK INI KARENA SUDAH TIDAK RELEVAN SETELAH REFACTOR AUTENTIKASI --}}
+                        {{--
                         <div class="ml-8">
                             @if ($employee->loginAccount)
                                 <span class="text-sm text-green-600 font-semibold">Akun Absensi Sudah Dibuat</span>
@@ -69,8 +89,10 @@
                                 </form>
                             @endif
                         </div>
+                        --}}
                     </div>
                 </div>
             </div>
         </div>
-    </x-app-layout>
+    </div>
+</x-app-layout>

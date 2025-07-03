@@ -11,7 +11,7 @@ class Appraisal extends Model
 
     protected $fillable = [
         'employee_id',
-        'appraiser_id',
+        'appraiser_id', // ID karyawan yang melakukan penilaian (sekarang ini adalah ID dari Employee)
         'appraisal_date',
         'overall_feedback',
         'overall_score',
@@ -21,16 +21,20 @@ class Appraisal extends Model
         'appraisal_date' => 'date',
     ];
 
+    // Relasi ke model Employee (karyawan yang dinilai)
     public function employee()
     {
         return $this->belongsTo(Employee::class);
     }
 
+    // Relasi ke model Employee (user yang melakukan penilaian)
+    // PENTING: relasi ini harus menunjuk ke model Employee
     public function appraiser()
     {
-        return $this->belongsTo(User::class, 'appraiser_id');
+        return $this->belongsTo(Employee::class, 'appraiser_id');
     }
 
+    // Relasi ke AppraisalCriterionScore (skor kriteria untuk penilaian ini)
     public function criterionScores()
     {
         return $this->hasMany(AppraisalCriterionScore::class);
