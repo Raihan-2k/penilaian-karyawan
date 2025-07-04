@@ -3,70 +3,69 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model; // <-- Tetap diimpor, tapi Employee akan extends Authenticatable
-use Illuminate\Foundation\Auth\User as Authenticatable; // <-- PENTING: Impor ini
+use Illuminate\Foundation\Auth\User as Authenticatable;
 
-// Model Employee sekarang extend Authenticatable untuk fitur autentikasi
-class Employee extends Authenticatable // <-- UBAH INI (sebelumnya extends Model)
+class Employee extends Authenticatable
 {
     use HasFactory;
 
-    // Properti $fillable mendefinisikan kolom-kolom yang boleh diisi secara massal (mass assignable).
-    // Ini termasuk kolom-kolom autentikasi yang baru ditambahkan di migrasi.
     protected $fillable = [
-        'nip', // Nomor Induk Pegawai
-        'name', // Nama Karyawan
-        'email', // Alamat email karyawan (tetap ada di DB, tapi tidak dipakai untuk login utama)
-        'password', // Hash password untuk login
-        'remember_token', // Token untuk fitur "remember me" (dikelola Laravel)
-        'email_verified_at', // Timestamp verifikasi email (opsional)
-        'must_change_password', // Flag untuk memaksa ganti password pada login pertama
-        'pendidikan_terakhir', // Tambahkan ini
-        'nomor_telepon', // Tambahkan ini
-        'tanggal_lahir', // Tambahkan ini
-        'position', // Jabatan/Posisi karyawan
-        'role', // Peran karyawan: 'manager' atau 'karyawan'
-        'hire_date', // Tanggal mulai bekerja
+        'nip',
+        'name',
+        'email',
+        'password',
+        'remember_token',
+        'email_verified_at',
+        'must_change_password',
+        'position',
+        'role',
+        'hire_date',
+        'pendidikan_terakhir',
+        'nomor_telepon',
+        'tanggal_lahir',
     ];
 
-    // Properti $hidden mendefinisikan kolom-kolom yang harus disembunyikan
-    // ketika model di-serialized menjadi array atau JSON (misal untuk API).
-    // Password dan remember_token sangat penting untuk disembunyikan.
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    // Properti $casts mendefinisikan casting tipe data kolom.
-    // Laravel akan otomatis mengkonversi nilai kolom ini ke tipe yang ditentukan
-    // saat diambil dari database.
     protected $casts = [
-        'hire_date' => 'date', // Konversi ke objek Carbon Date
-        'email_verified_at' => 'datetime', // Konversi ke objek Carbon DateTime
-        'must_change_password' => 'boolean', // Konversi ke tipe boolean
+        'hire_date' => 'date',
+        'email_verified_at' => 'datetime',
+        'must_change_password' => 'boolean',
         'tanggal_lahir' => 'date',
     ];
 
-    /*
-    |--------------------------------------------------------------------------
-    | Relasi (Relationships)
-    |--------------------------------------------------------------------------
-    | Definisi relasi antar model untuk memudahkan pengambilan data terkait.
-    */
-
-    // Relasi One-to-Many: Satu Karyawan bisa memiliki banyak Penilaian (Appraisal)
+    // Relasi ke model Appraisal
     public function appraisals()
     {
         return $this->hasMany(Appraisal::class);
     }
 
-    // Relasi One-to-Many: Satu Karyawan bisa memiliki banyak Record Absensi (Attendance)
+    // Relasi ke model Attendance
     public function attendances()
     {
         return $this->hasMany(Attendance::class);
     }
 
-    // Catatan:
-    // Relasi 'loginAccount' yang sebelumnya ada di Employee untuk EmployeeLogin
-    // tidak lagi diperlukan karena Model Employee sendiri sekarang adalah user yang bisa login.
-}
+    // --- Relasi Baru untuk Fitur Tugas ---
+
+    // Relasi: Tugas yang diberikan oleh Employee ini (jika rolenya manager)
+    public function assignedTasks()
+    {
+        return $this->hasMany(Task::class, 'assigned_by_manager_id');
+    }
+
+    // Relasi: Tugas yang diterima oleh Employee ini (jika rolenya karyawan)
+    public function receivedTasks()
+    {
+        return $this->hasMany(Task::class, 'assigned_to_employee_id');
+    }
+
+    // Relasi: Submit tugas yang dilakukan oleh Employee ini
+    public function taskSubmissions()
+    {
+        return $this->hasMany(TaskSubmission::class, 'submitted_by_employee_id');
+    }
+}   
