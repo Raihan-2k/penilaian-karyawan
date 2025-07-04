@@ -1,4 +1,4 @@
-<nav x-data="{ open: false }" class="bg-indigo-50 shadow-sm border-b border-indigo-100">
+<nav x-data="{ open: false }" class="bg-indigo-50 shadow-sm border-b border-indigo-100"> {{-- Desain navbar --}}
     <!-- Primary Navigation Menu -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
@@ -6,13 +6,13 @@
                 <!-- Logo -->
                 <div class="shrink-0 flex items-center">
                     {{-- Logo akan mengarah ke dashboard yang sesuai role --}}
-                    @auth
+                    @auth {{-- Memastikan user sudah login sebelum mengecek role --}}
                         @if (Auth::user()->role === 'manager')
                             <a href="{{ route('dashboard') }}">
                                 <x-application-logo class="block h-9 w-auto fill-current text-gray-800" />
                             </a>
                         @elseif (Auth::user()->role === 'karyawan')
-                            <a href="{{ route('absensi.dashboard') }}"> {{-- Logo karyawan mengarah ke dashboard absensi --}}
+                            <a href="{{ route('absensi.dashboard') }}">
                                 <x-application-logo class="block h-9 w-auto fill-current text-gray-800" />
                             </a>
                         @endif
@@ -22,11 +22,10 @@
                 <!-- Navigation Links -->
                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                     {{-- Navigasi untuk Manager --}}
-                    @if (Auth::check() && Auth::user()->role === 'manager')
+                    @if (Auth::check() && Auth::user()->role === 'manager') {{-- Auth::check() untuk memastikan user login --}}
                         <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                             {{ __('Dashboard') }}
                         </x-nav-link>
-                        {{-- ... menu manager lainnya ... --}}
                         <x-nav-link :href="route('employees.index')" :active="request()->routeIs('employees.*')">
                             {{ __('Karyawan') }}
                         </x-nav-link>
@@ -39,64 +38,72 @@
                         <x-nav-link :href="route('admin.attendances.index')" :active="request()->routeIs('admin.attendances.index')">
                             {{ __('Laporan Absensi') }}
                         </x-nav-link>
+                        <x-nav-link :href="route('tasks.index')" :active="request()->routeIs('tasks.*')">
+                            {{ __('Manajemen Tugas') }}
+                        </x-nav-link>
                     @endif
 
                     {{-- Navigasi untuk Karyawan --}}
                     @if (Auth::check() && Auth::user()->role === 'karyawan')
                         <x-nav-link :href="route('absensi.dashboard')" :active="request()->routeIs('absensi.dashboard')">
-                            {{ __('Dashboard Absensi') }} {{-- Ini adalah menu absensi untuk karyawan --}}
+                            {{ __('Dashboard Absensi') }}
                         </x-nav-link>
-                        {{-- Anda bisa tambahkan link lain khusus karyawan di sini jika ada (misal: "Riwayat Absensi Saya") --}}
+                        <x-nav-link :href="route('employee-tasks.index')" :active="request()->routeIs('employee-tasks.*')"> {{-- TAMBAHAN: Tugas Saya --}}
+                            {{ __('Tugas Saya') }}
+                        </x-nav-link>
                     @endif
                 </div>
             </div>
 
-            <!-- Settings Dropdown -->
+            <!-- Settings Dropdown (Pengaturan Profil & Logout) -->
             <div class="hidden sm:flex sm:items-center sm:ms-6">
-                {{-- ... bagian dropdown profile dan logout ... --}}
-                @auth
-                    <x-dropdown align="right" width="48">
-                        <x-slot name="trigger">
-                            <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
+                <x-dropdown align="right" width="48">
+                    <x-slot name="trigger">
+                        <button class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
+                            {{-- Nama User berdasarkan Role yang aktif --}}
+                            @auth {{-- Memastikan user sudah login sebelum mengecek role --}}
                                 @if (Auth::user()->role === 'manager')
                                     <div>{{ Auth::user()->name }}</div>
                                 @elseif (Auth::user()->role === 'karyawan')
                                     <div>{{ Auth::user()->name }}</div>
                                 @endif
-                                <div class="ms-1">
-                                    <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                    </svg>
-                                </div>
-                            </button>
-                        </x-slot>
-                        <x-slot name="content">
-                            @if (Auth::check() && Auth::user()->role === 'manager')
-                                <x-dropdown-link :href="route('profile.edit')">
-                                    {{ __('Profile') }}
+                            @endauth
+
+                            <div class="ms-1">
+                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                        </button>
+                    </x-slot>
+
+                    <x-slot name="content">
+                        {{-- Link Profil & Logout berdasarkan Role --}}
+                        @if (Auth::check() && Auth::user()->role === 'manager')
+                            <x-dropdown-link :href="route('profile.edit')">
+                                {{ __('Profile') }}
+                            </x-dropdown-link>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <x-dropdown-link :href="route('logout')"
+                                        onclick="event.preventDefault(); this.closest('form').submit();">
+                                    {{ __('Log Out') }}
                                 </x-dropdown-link>
-                                <form method="POST" action="{{ route('logout') }}">
-                                    @csrf
-                                    <x-dropdown-link :href="route('logout')"
-                                            onclick="event.preventDefault(); this.closest('form').submit();">
-                                        {{ __('Log Out') }}
-                                    </x-dropdown-link>
-                                </form>
-                            @elseif (Auth::check() && Auth::user()->role === 'karyawan')
-                                <x-dropdown-link :href="route('absensi.change-password')">
-                                    {{ __('Ganti Password') }}
+                            </form>
+                        @elseif (Auth::check() && Auth::user()->role === 'karyawan')
+                            <x-dropdown-link :href="route('absensi.change-password')">
+                                {{ __('Ganti Password') }}
+                            </x-dropdown-link>
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <x-dropdown-link :href="route('logout')"
+                                        onclick="event.preventDefault(); this.closest('form').submit();">
+                                    {{ __('Log Out Absensi') }}
                                 </x-dropdown-link>
-                                <form method="POST" action="{{ route('logout') }}">
-                                    @csrf
-                                    <x-dropdown-link :href="route('logout')"
-                                            onclick="event.preventDefault(); this.closest('form').submit();">
-                                        {{ __('Log Out Absensi') }}
-                                    </x-dropdown-link>
-                                </form>
-                            @endif
-                        </x-slot>
-                    </x-dropdown>
-                @endauth
+                            </form>
+                        @endif
+                    </x-slot>
+                </x-dropdown>
             </div>
 
             <!-- Hamburger (Mobile Menu) -->
@@ -119,7 +126,6 @@
                 <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                     {{ __('Dashboard') }}
                 </x-responsive-nav-link>
-                {{-- ... menu responsive manager lainnya ... --}}
                 <x-responsive-nav-link :href="route('employees.index')" :active="request()->routeIs('employees.*')">
                     {{ __('Karyawan') }}
                 </x-responsive-nav-link>
@@ -132,12 +138,18 @@
                 <x-responsive-nav-link :href="route('admin.attendances.index')" :active="request()->routeIs('admin.attendances.index')">
                     {{ __('Laporan Absensi') }}
                 </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('tasks.index')" :active="request()->routeIs('tasks.*')">
+                    {{ __('Manajemen Tugas') }}
+                </x-responsive-nav-link>
             @endif
 
             {{-- Navigasi Responsif untuk Karyawan --}}
             @if (Auth::check() && Auth::user()->role === 'karyawan')
                 <x-responsive-nav-link :href="route('absensi.dashboard')" :active="request()->routeIs('absensi.dashboard')">
                     {{ __('Dashboard Absensi') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('employee-tasks.index')" :active="request()->routeIs('employee-tasks.*')"> {{-- TAMBAHAN: Tugas Saya --}}
+                    {{ __('Tugas Saya') }}
                 </x-responsive-nav-link>
             @endif
         </div>
