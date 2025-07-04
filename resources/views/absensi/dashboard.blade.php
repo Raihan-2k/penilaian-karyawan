@@ -2,7 +2,7 @@
     <x-slot name="header">
         {{-- Menggunakan Auth::user()->name karena Auth::user() sudah mengembalikan objek Employee --}}
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Dashboard Absensi') }} - {{ Auth::user()->name }}
+             {{ Auth::user()->name }}
         </h2>
     </x-slot>
 
