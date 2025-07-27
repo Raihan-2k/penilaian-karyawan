@@ -1,71 +1,90 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Daftar Bukti Penjualan') }}
-        </h2>
+        <div class="flex items-center justify-between">
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+                {{ __('Daftar Bukti Penjualan') }}
+            </h2>
+
+            @if (Auth::user()->role === 'administrator')
+                <a href="{{ route('sales-proofs.create') }}"
+                    class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-md shadow">
+                    + Unggah Bukti Baru
+                </a>
+            @endif
+        </div>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    {{-- Tombol Unggah Bukti Penjualan Baru (Hanya untuk Administrator) --}}
-                    @if (Auth::user()->role === 'administrator')
-                        <a href="{{ route('sales-proofs.create') }}" class="inline-flex items-center px-4 py-2 bg-gray-800 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition ease-in-out duration-150 mb-4">
-                            Unggah Bukti Penjualan Baru
-                        </a>
-                    @endif
+    <div class="py-10">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
-                    @if (session('success'))
-                        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
-                            {{ session('success') }}
-                        </div>
-                    @endif
+            {{-- Alert sukses --}}
+            @if (session('success'))
+                <div class="bg-green-100 border border-green-400 text-green-800 px-4 py-3 rounded relative" role="alert">
+                    {{ session('success') }}
+                </div>
+            @endif
 
-                    <div class="overflow-x-auto mt-6">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
+            <div class="bg-white shadow rounded-lg p-6">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200 text-sm text-gray-700">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left font-semibold">Judul</th>
+                                <th class="px-6 py-3 text-left font-semibold">Diunggah Oleh</th>
+                                <th class="px-6 py-3 text-left font-semibold">Status</th>
+                                <th class="px-6 py-3 text-left font-semibold">Tanggal Unggah</th>
+                                <th class="px-6 py-3 text-center font-semibold">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-100">
+                            @forelse ($salesProofs as $proof)
                                 <tr>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Judul</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Diunggah Oleh</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal Unggah</th>
-                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                @forelse ($salesProofs as $proof)
-                                    <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $proof->title }}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $proof->uploadedBy?->user?->name }}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ ['pending' => 'bg-yellow-100 text-yellow-800', 'validated' => 'bg-green-100 text-green-800', 'rejected' => 'bg-red-100 text-red-800'][$proof->status] ?? 'bg-gray-100 text-gray-800' }}">
-                                                {{ ucfirst($proof->status) }}
-                                            </span>
-                                        </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $proof->created_at->format('d M Y H:i') }}</td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                            <a href="{{ route('sales-proofs.show', $proof) }}" class="text-indigo-600 hover:text-indigo-900 mr-3">Lihat</a>
+                                    <td class="px-6 py-4">{{ $proof->title }}</td>
+                                    <td class="px-6 py-4">{{ $proof->uploadedBy?->user?->name }}</td>
+                                    <td class="px-6 py-4">
+                                        <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold
+                                            {{
+                                                match($proof->status) {
+                                                    'pending' => 'bg-yellow-100 text-yellow-800',
+                                                    'validated' => 'bg-green-100 text-green-800',
+                                                    'rejected' => 'bg-red-100 text-red-800',
+                                                    default => 'bg-gray-100 text-gray-800',
+                                                }
+                                            }}">
+                                            {{ ucfirst($proof->status) }}
+                                        </span>
+                                    </td>
+                                    <td class="px-6 py-4">{{ $proof->created_at->format('d M Y H:i') }}</td>
+                                    <td class="px-6 py-4 text-right space-x-2 flex justify-around">
+                                        <a href="{{ route('sales-proofs.show', $proof) }}" class="text-indigo-600 hover:underline">
+                                            <x-heroicon-o-eye class="w-5 h-5"/>
+                                        </a>
 
-                                            {{-- Tombol Edit dan Hapus (Hanya untuk Administrator) --}}
-                                            @if (Auth::user()->role === 'administrator')
-                                                <a href="{{ route('sales-proofs.edit', $proof) }}" class="text-blue-600 hover:text-blue-900 mr-3">Edit</a>
-                                                <form action="{{ route('sales-proofs.destroy', $proof) }}" method="POST" class="inline-block">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="text-red-600 hover:text-red-900" onclick="return confirm('Apakah Anda yakin ingin menghapus bukti penjualan ini?')">Hapus</button>
-                                                </form>
-                                            @endif
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="5" class="px-6 py-4 text-center text-gray-500">Belum ada bukti penjualan yang diunggah.</td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
+                                        @if (Auth::user()->role === 'administrator')
+                                            <a href="{{ route('sales-proofs.edit', $proof) }}" class="text-blue-600 hover:underline">
+                                                <x-heroicon-o-pencil-square class="w-5 h-5"/>
+                                            </a>
+
+                                            <form action="{{ route('sales-proofs.destroy', $proof) }}" method="POST" class="inline-block"
+                                                onsubmit="return confirm('Apakah Anda yakin ingin menghapus bukti penjualan ini?')">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="text-red-600 hover:underline">
+                                                    <x-heroicon-o-trash class="w-5 h-5"/>
+                                            </button>
+                                            </form>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="5" class="px-6 py-4 text-center text-gray-500">
+                                        Belum ada bukti penjualan yang diunggah.
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>

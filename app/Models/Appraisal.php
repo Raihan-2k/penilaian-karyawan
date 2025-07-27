@@ -39,4 +39,25 @@ class Appraisal extends Model
     {
         return $this->hasMany(AppraisalCriterionScore::class);
     }
+
+    public function getOverallRatingAttribute(): string
+    {
+        // Dapatkan jumlah maksimum kriteria penilaian yang mungkin (jika semua skor +1)
+        // Ini akan menghitung jumlah kriteria dari tabel appraisal_criteria
+        $maxPossibleScore = AppraisalCriterion::count();
+
+        // Jika tidak ada kriteria, atau skor belum dihitung, kembalikan default
+        if ($maxPossibleScore === 0) {
+            return 'Tidak Tersedia';
+        }
+
+        // Logika penilaian otomatis
+        if ($this->overall_score === $maxPossibleScore) {
+            return 'Sangat Baik'; // Jika skor sempurna (semua kriteria +1)
+        } elseif ($this->overall_score > 8) { // Jika skor lebih dari 8
+            return 'Baik';
+        } else {
+            return 'Tidak Baik'; // Default untuk skor di bawah ambang batas
+        }
+    }
 }

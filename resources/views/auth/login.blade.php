@@ -1,5 +1,5 @@
 <x-guest-layout>
-    <div class=" flex flex-col sm:justify-center items-center pt-6 sm:pt-0 ">
+    <div class="flex flex-col sm:justify-center items-center pt-6 sm:pt-0">
         
         {{-- Logo Perusahaan --}}
         <div>
@@ -9,7 +9,7 @@
         </div>
 
         {{-- Kartu Login Utama --}}
-        <div class="w-full sm:max-w-md mt-6 px-6 py-8 bg-white dark:bg-gray-800  overflow-hidden sm:rounded-lg">
+        <div class="w-full sm:max-w-md mt-6 px-6 py-8 bg-white dark:bg-gray-800 overflow-hidden sm:rounded-lg">
             
             {{-- Header Kartu --}}
             <div class="text-center mb-8">
@@ -27,17 +27,25 @@
                 @csrf
 
                 <div class="space-y-6">
+                    {{-- Input NIP --}}
                     <div>
                         <x-input-label for="nip" :value="__('NIP')" />
                         <div class="relative mt-1">
-                            <x-text-input id="nip" class="block w-full ps-10" type="text" name="nip" :value="old('nip')" required autofocus autocomplete="username" placeholder="12345678" />
+                            <div class="absolute inset-y-0 left-0 flex items-center ps-3">
+                                <x-heroicon-o-user class="w-5 h-5 text-gray-400 dark:text-gray-600" />
+                            </div>
+                            <x-text-input id="nip" class="block w-full ps-10" type="text" name="nip" :value="old('nip')" required autofocus autocomplete="username" placeholder="NIP" />
                         </div>
                         <x-input-error :messages="$errors->get('nip')" class="mt-2" />
                     </div>
 
+                    {{-- Input Password --}}
                     <div>
                         <x-input-label for="password" :value="__('Password')" />
                         <div class="relative mt-1">
+                            <div class="absolute inset-y-0 left-0 flex items-center ps-3">
+                                <x-heroicon-o-lock-closed class="w-5 h-5 text-gray-400 dark:text-gray-600" />
+                            </div>
                             <x-text-input id="password" class="block w-full ps-10"
                                           type="password"
                                           name="password"
