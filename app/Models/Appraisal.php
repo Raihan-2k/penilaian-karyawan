@@ -54,7 +54,7 @@ class Appraisal extends Model
         // Logika penilaian otomatis
         if ($this->overall_score === $maxPossibleScore) {
             return 'Sangat Baik'; // Jika skor sempurna (semua kriteria +1)
-        } elseif ($this->overall_score > 8) { // Jika skor lebih dari 8
+        } elseif ($this->overall_score > 10) { // Jika skor lebih dari 8
             return 'Baik';
         } else {
             return 'Tidak Baik'; // Default untuk skor di bawah ambang batas
