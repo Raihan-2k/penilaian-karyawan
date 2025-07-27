@@ -1,0 +1,1 @@
+<x-heroicon-o-clipboard-document-check class="w-6 h-6 text-blue-600" />

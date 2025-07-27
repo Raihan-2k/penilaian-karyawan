@@ -1,0 +1,1 @@
+ <img src="{{ asset('images/logo.png') }}" alt="Logo Perusahaan" class="h-11 w-14">
